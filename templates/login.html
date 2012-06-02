@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="span4 offset3" style="margin-top:75px;">
+  <form class="well" method="post">
+    <fieldset>
+      <legend>Login</legend>
+      <div class="control-group">
+        <label class="control-label" for="username"><h3>Username</h3></label>
+        <div class="controls">
+          <input type="text" id="username" name="username" value="{{username}}">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="password"><h3>Password</h3></label>
+        <div class="controls">
+          <input type="password" id="password" name="password" value="">
+        </div>
+      </div>
+      <div class="error">
+        {{login_error}}
+      </div>
+      <input class="btn btn-primary" type="submit" value="Login">
+    </fieldset>
+  </form>
+</div> 
+{% endblock %}

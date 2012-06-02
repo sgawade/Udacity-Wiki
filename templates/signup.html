@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="span4 offset3">
+  <form class="well" method="post">
+    <fieldset>
+      <legend>SignUp</legend>
+      <div class="control-group">
+        <label class="control-label" for="username"><h4>Username</h4></label>
+        <div class="controls">
+          <input type="text" id="username" name="username" value="{{username}}">
+          <span class="help-inline error">{{usernameerror}}</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="password"><h4>Password</h4></label>
+        <div class="controls">
+          <input type="password" id="password" name="password" value="">
+          <span class="help-inline error">{{passwderror}}</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="verify"><h4>Verify Password</h4></label>
+        <div class="controls">
+          <input type="password" id="verify" name="verify" value="">
+          <span class="help-inline error">{{verifyerror}}</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="email"><h4>Email</h4></label>
+        <div class="controls">
+          <input type="text" id="email" name="email" value="">
+          <span class="help-inline error">{{emailerror}}</span>
+        </div>
+      </div>
+      <input class="btn btn-primary" type="submit" value="Signup">
+    </fieldset>
+  </form>
+</div> 
+{% endblock %}
