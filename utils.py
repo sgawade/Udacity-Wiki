@@ -32,17 +32,18 @@ class Users(db.Model):
 class WikiItems(db.Model):
     slug = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
+    version = db.IntegerProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
 def all_wikis(update = False):
-    key = 'all_wiki'
-    all_wiki = memcache.get(key)
-    if all_wiki is None or update:
-        all_wiki = db.GqlQuery("select * from WikiItems "
+#    key = 'all_wiki'
+#    all_wiki = memcache.get(key)
+#    if all_wiki is None or update:
+    all_wiki = db.GqlQuery("select * from WikiItems "
                            "Order by created desc "
                            "limit 10")
-        all_wiki = list(all_wiki)
-        memcache.set(key, all_wiki)
+    all_wiki = list(all_wiki)
+#        memcache.set(key, all_wiki)
     return all_wiki
 
 def get_user(self):

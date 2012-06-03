@@ -1,7 +1,7 @@
 import os
 import webapp2
 import jinja2
-import time
+import logging
 
 from utils import *
 from google.appengine.ext import db
@@ -90,7 +90,7 @@ class LoginPage(webapp2.RequestHandler):
         u_db = db.GqlQuery("select * from Users WHERE name='%s'" %username).get()
         if not u_db:
             template = jinja_env.get_template('login.html')
-            self.response.out.write(template.render({'login_error': "Invalid login", 'username': username}))
+            self.response.out.write(template.render({'login_error': "Invalid login", 'username': username, 'user': ""}))
         else:
             u_id = u_db.key().id()
             result = Users.get_by_id(int(u_id))
@@ -100,18 +100,78 @@ class LoginPage(webapp2.RequestHandler):
                 self.redirect("/")
             else:
                 template = jinja_env.get_template('login.html')
-                self.response.out.write(template.render({'login_error': "Invalid login", 'username': username}))
+                self.response.out.write(template.render({'login_error': "Invalid login", 'username': username, 'user': ""}))
 
 class LogoutPage(webapp2.RequestHandler):
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'user_id=;Path=/')
         self.redirect("/")
 
+class EditPage(webapp2.RequestHandler):
+    def get(self, slug):
+        user = get_user(self)
+        slug = slug.strip('/')
+        if user:
+            wiki = db.GqlQuery("select * from WikiItems where slug='%s' order by created desc" %slug)
+            if wiki.get():
+                wiki = list(wiki)
+                wiki = wiki[0]
+            else:
+                wiki = ""
+            template = jinja_env.get_template('edit_wiki.html')
+            self.response.out.write(template.render({'user': user, 'wiki': wiki})) 
+        else:
+            self.redirect("/")
+
+    def post(self, slug):
+        content = self.request.get("content")
+        slug = slug.strip('/')
+        wiki = db.GqlQuery("select * from WikiItems where slug='%s' order by created desc" %slug)
+        if wiki.get():
+            wiki = list(wiki)
+            wiki = wiki[0]
+            version = wiki.version + 1
+        else:
+            version = 1
+        w = WikiItems(slug=slug, version=version, content=content)
+        w.put() 
+        self.redirect('/' + slug)
+        
+
+class WikiPage(webapp2.RequestHandler):
+    def get(self, slug):
+        v = self.request.get('v')
+        slug = slug.strip('/')
+        user = get_user(self)
+        if v:
+            wiki = db.GqlQuery("select * from WikiItems where slug='%s' and version=%s" %(slug, v))
+        else:
+            wiki = db.GqlQuery("select * from WikiItems where slug='%s' order by created desc" %slug)
+        if wiki.get():
+            wiki = list(wiki)
+            template = jinja_env.get_template('wiki.html')
+            self.response.out.write(template.render({'user': user, 'wiki': wiki[0]})) 
+        else:
+            self.redirect("/_edit/" + slug)
+            
+class HistoryPage(webapp2.RequestHandler):
+    def get(self, slug):
+        slug = slug.strip('/')
+        user = get_user(self)
+        wiki = db.GqlQuery("select * from WikiItems where slug='%s' order by created desc" %slug)
+        if wiki.get():
+            wiki = list(wiki)
+            template = jinja_env.get_template('wiki_history.html')
+            self.response.out.write(template.render({'user': user, 'wiki': wiki}))
+        else:
+            self.redirect('/' + slug)
+
 app = webapp2.WSGIApplication([('/', HomePage),
                                ('/signup/?', SignUpPage),
                                ('/login/?', LoginPage),
                                ('/logout/?', LogoutPage),
-                           #    ('/_edit/PAGE_RE/?', EditPage),
-                           #    (PAGE_RE, WikiPage),
+                               ('/_history/?' + PAGE_RE, HistoryPage),
+                               ('/_edit/?' + PAGE_RE, EditPage),
+                               ('/?' + PAGE_RE, WikiPage),
                                ],
                               debug=True)

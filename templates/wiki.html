@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="span12">
+<h1>Wiki Page</h1>
+      <pre>
+        {% if user %}
+        <a class="btn btn-primary pull-right" href="/_edit/{{wiki.slug}}">edit</a>
+        {% endif %}
+        <a class="btn btn-primary pull-right" href="/_history/{{wiki.slug}}">history</a>
+      {{wiki.content}}
+      </pre>
+</div>
+{% endblock %}
